@@ -8,6 +8,6 @@ const v1Router = Router();
 
 v1Router.use('/users', usersRouter);
 v1Router.use('/auth', authRouter);
-v1Router.use('/book', booksRouter);
+v1Router.use('/books', booksRouter);
 
 export default v1Router;

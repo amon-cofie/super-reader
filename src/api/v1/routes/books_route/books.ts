@@ -1,5 +1,5 @@
 import { PrismaClient, Book } from '@prisma/client';
-import { Router } from 'express';
+import { Request, Response, Router } from 'express';
 const multer = require('multer');
 import path from 'path';
 import { uploadBook } from './fileUpload';
@@ -33,6 +33,22 @@ booksRouter.use((req, res, next) => {
   next();
 });
 
+// get all books
+booksRouter.get('/', async (req, res) => {
+  const allBooks = prisma.book
+    .findMany()
+    .catch((error) => {
+      // return res.status(500).json(TemplateJSONResponse.failure("Something went wrong"))
+      return res.status(500).json({});
+    })
+    .finally(() => {
+      prisma.$disconnect;
+    });
+  res.status(200).json({});
+  // res.status(200).json(TemplateJSONResponse.success("", allBooks ))
+});
+
+// upload a book
 booksRouter.post(
   '/upload',
   ensureAuthenticated,
@@ -64,8 +80,24 @@ booksRouter.post(
   },
 );
 
-booksRouter.get('/:id', (req, res) => {
-  log("hello world")
-})
+// get an individual book
+booksRouter.get('/:id', ensureAuthenticated, (req: any, res: any) => {
+  log(req.params);
+  log('hello world');
+
+  const requestedBook = prisma.book.findUnique({
+    where: {
+      id: req.params.id,
+    },
+  });
+
+  if (!requestedBook) {
+    // return res.status(404).json(TemplateJSONResponse.failure("Book was not found"))
+    return res.status(404).json({});
+  }
+
+  res.status(200).json({});
+  // res.status(200).json(TemplateJSONResponse.success("Book found", requestedBook))
+});
 
 export default booksRouter;
