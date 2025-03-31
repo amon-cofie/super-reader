@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 
 usersRouter.get('/', (req, res) => {
   console.log('user is: ', req.user);
+  res.send({"user": `${req.user}`});
 });
 
 export default usersRouter;

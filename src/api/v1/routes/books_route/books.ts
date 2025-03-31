@@ -35,17 +35,37 @@ booksRouter.use((req, res, next) => {
 
 // get all books
 booksRouter.get('/', async (req, res) => {
-  const allBooks = prisma.book
+  const allBooks = await prisma.book
     .findMany()
     .catch((error) => {
-      // return res.status(500).json(TemplateJSONResponse.failure("Something went wrong"))
       return res.status(500).json({});
     })
     .finally(() => {
       prisma.$disconnect;
     });
+    console.log(allBooks);
+    
+  res.status(200).json(allBooks);
+});
+
+// get an individual book
+booksRouter.get('/:id', ensureAuthenticated, (req: any, res: any) => {
+  log(req.params);
+  log('hello world');
+
+  const requestedBook = prisma.book.findUnique({
+    where: {
+      id: req.params.id,
+    },
+  });
+
+  if (!requestedBook) {
+    // return res.status(404).json(TemplateJSONResponse.failure("Book was not found"))
+    return res.status(404).json({});
+  }
+
   res.status(200).json({});
-  // res.status(200).json(TemplateJSONResponse.success("", allBooks ))
+  // res.status(200).json(TemplateJSONResponse.success("Book found", requestedBook))
 });
 
 // upload a book
@@ -79,25 +99,5 @@ booksRouter.post(
     res.status(200).json(req.body);
   },
 );
-
-// get an individual book
-booksRouter.get('/:id', ensureAuthenticated, (req: any, res: any) => {
-  log(req.params);
-  log('hello world');
-
-  const requestedBook = prisma.book.findUnique({
-    where: {
-      id: req.params.id,
-    },
-  });
-
-  if (!requestedBook) {
-    // return res.status(404).json(TemplateJSONResponse.failure("Book was not found"))
-    return res.status(404).json({});
-  }
-
-  res.status(200).json({});
-  // res.status(200).json(TemplateJSONResponse.success("Book found", requestedBook))
-});
 
 export default booksRouter;
